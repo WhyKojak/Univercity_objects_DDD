@@ -8,8 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<Univercity_objects.Infrastructure.Context>(options =>
- options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+//builder.Services.AddDbContext<Univercity_objects.Infrastructure.BaseContext>(options =>
+ //options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
