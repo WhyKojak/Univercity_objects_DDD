@@ -1,0 +1,9 @@
+@Univercity_objects.API_HostAddress = http://localhost:5266
+
+GET {{Univercity_objects.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{Univercity_objects.API_HostAddress}}/testdb/
+Accept: application/json
