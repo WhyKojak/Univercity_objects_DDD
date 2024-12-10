@@ -1,4 +1,6 @@
-﻿namespace Univercity_objects.Domain;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Univercity_objects.Domain;
 
 public class Auditory : BaseEntity
 {

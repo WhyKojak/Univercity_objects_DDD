@@ -5,5 +5,5 @@ Accept: application/json
 
 ###
 
-GET {{Univercity_objects.API_HostAddress}}/testdb/
+GET {{Univercity_objects.API_HostAddress}}/baseentity/
 Accept: application/json

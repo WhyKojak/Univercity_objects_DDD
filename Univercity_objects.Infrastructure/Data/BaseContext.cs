@@ -6,13 +6,29 @@ namespace Univercity_objects.Infrastructure;
 
 public class BaseContext : DbContext
 {
-    public BaseContext()
+    public DbSet<BaseEntity> BaseEntities { get; set; }
+    public DbSet<Auditory> Auditories { get; set; }
+    public DbSet<CafedraEntity> CafedraEntities { get; set; }
+    public DbSet<AuditoryComponentEntity> AuditoryComponentEntities { get; set; }
+    public DbSet<ComputerEntity> ComputerEntities { get; set; }
+    public DbSet<FurnitureEntity> FurnitureEntities { get; set; }  
+    public DbSet<MultimediaEqumentEntity> MultimediaEqumentEntities { get; set; }
+
+    public BaseContext(DbContextOptions<BaseContext> options) : base(options) 
     {
+        //Database.EnsureCreated();
     }
 
-    public BaseContext(DbContextOptions<BaseContext> options) : base(options) { }
+    protected override void OnModelCreating(ModelBuilder modelBuilder) 
+    {
+        modelBuilder.Entity<BaseEntity>().ToTable("BaseEntity");
+        modelBuilder.Entity<Auditory>().ToTable("Auditory");
+        modelBuilder.Entity<CafedraEntity>().ToTable("CafedraEntity");
+        modelBuilder.Entity<AuditoryComponentEntity>().ToTable("AuditoryComponentEntity");
+        modelBuilder.Entity<ComputerEntity>().ToTable("ComputerEntity");
+        modelBuilder.Entity<FurnitureEntity>().ToTable("FurnitureEntity");
+        modelBuilder.Entity<MultimediaEqumentEntity>().ToTable("MultimediaEqumentEntity");
+        base.OnModelCreating(modelBuilder);
+    }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) { }
-
-    public DbSet<BaseEntity> BaseEntities { get; set; }
 }
