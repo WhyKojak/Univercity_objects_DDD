@@ -1,7 +1,10 @@
-﻿namespace Univercity_objects.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class BaseEntity 
+namespace Univercity_objects.Domain;
+
+public abstract class BaseEntity 
 {
+    [Key]
     public Guid guid { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
