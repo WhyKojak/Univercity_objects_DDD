@@ -6,43 +6,44 @@ using System.Threading.Tasks;
 using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 
-public class SQLRepository : IRepository<BaseEntity>
+public class CafedraRepository
 {
     private BaseContext db;
 
-    public SQLRepository (BaseContext db)
+    public CafedraRepository(BaseContext db)
     {
         this.db = db ?? throw new ArgumentNullException(nameof(db));
     }
 
-    public IEnumerable<BaseEntity> GetAll()
+    public IEnumerable<CafedraEntity> GetAll()
     {
-        return db.BaseEntities.ToArray();
+        return db.CafedraEntities.ToList();
     }
 
-    public BaseEntity Get(Guid guid)
+    public CafedraEntity Get(Guid guid)
     {
-        return db.BaseEntities.Find(guid);
+        return db.CafedraEntities.Find(guid);
     }
 
-    public void Create(BaseEntity entity)
+    public void Create(CafedraEntity entity)
     {
-        db.BaseEntities.Add(entity);
+        db.CafedraEntities.Add(entity);
         db.SaveChanges();
     }
 
-    public void Update(BaseEntity entity)
+    public void Update(CafedraEntity entity)
     {
-        db.BaseEntities.Update(entity);
+        db.CafedraEntities.Update(entity);
         db.SaveChanges();
     }
 
     public void Delete(Guid guid)
     {
-        BaseEntity entity = db.BaseEntities.Find(guid);
+        CafedraEntity entity = db.CafedraEntities.Find(guid);
         if (entity != null)
         {
-            db.BaseEntities.Remove(entity);
+            db.CafedraEntities.Remove(entity);
+            db.SaveChanges();
         }
     }
 

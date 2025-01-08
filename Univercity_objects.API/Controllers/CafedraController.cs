@@ -5,11 +5,12 @@ using Univercity_objects.Infrastructure;
 
 namespace Univercity_objects.API.Controllers;
 
+[ApiController]
 [Route("[controller]")]
-public class BaseEntityController : Controller
+public class CafedraController : ControllerBase
 {
-    private SQLRepository repository;
-    public BaseEntityController (SQLRepository repository)
+    private CafedraRepository repository;
+    public CafedraController (CafedraRepository repository)
     {
         this.repository = repository;
     }
@@ -33,7 +34,7 @@ public class BaseEntityController : Controller
     }
 
     [HttpPost]
-    public IActionResult Create(BaseEntity entity)
+    public ActionResult<CafedraEntity> Create(CafedraEntity entity)
     {
         if (entity == null)
         {
@@ -52,7 +53,42 @@ public class BaseEntityController : Controller
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { id = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+        }
+        catch (Exception ex)
+        {
+            // В случае ошибки возвращаем статус 500 с сообщением об ошибке
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    [HttpDelete("{guid}")]
+    public ActionResult Delete(Guid guid)
+    {
+        if (repository.Get(guid) != null)
+        {
+            repository.Delete(guid);
+            return NoContent();
+        }
+        else
+        {
+            return NotFound("dededfe");
+        }
+    }
+    [HttpPut]
+    public ActionResult<CafedraEntity> Update(CafedraEntity entity)
+    {
+        if (entity == null)
+        {
+            return BadRequest("Сущность не может быть null.");
+        }
+        try
+        {
+            // Добавление в базу через репозиторий
+            repository.Update(entity);
+
+            // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
+            return new JsonResult(entity);
         }
         catch (Exception ex)
         {

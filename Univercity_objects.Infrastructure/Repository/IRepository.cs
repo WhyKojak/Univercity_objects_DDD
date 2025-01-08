@@ -1,6 +1,8 @@
-﻿namespace Univercity_objects.Infrastructure;
+﻿using Univercity_objects.Domain;
 
-interface IRepository<T> where T : class
+namespace Univercity_objects.Infrastructure;
+
+interface IRepository<T> where T : BaseEntity
 {
     IEnumerable<T> GetAll(); // получение всех объектов
     T Get(Guid guid); // получение объекта по id

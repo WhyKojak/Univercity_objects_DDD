@@ -1,9 +1,11 @@
-@Univercity_objects.API_HostAddress = http://localhost:5266
+@Univercity_objects.API_HostAddress = http://localhost:7264
 
 GET {{Univercity_objects.API_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
 
-GET {{Univercity_objects.API_HostAddress}}/baseentity/
+GET {{Univercity_objects.API_HostAddress}}/cafedra/
 Accept: application/json
+
+POST {{Univercity_objects.API_HostAddress}}/cafedra/
