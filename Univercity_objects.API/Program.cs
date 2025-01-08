@@ -15,6 +15,7 @@ builder.Services.AddDbContext<Univercity_objects.Infrastructure.BaseContext>(opt
  options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
 builder.Services.AddScoped<CafedraRepository>();
+builder.Services.AddScoped<AuditoryRepository>();
 
 var app = builder.Build();
 

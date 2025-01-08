@@ -22,7 +22,7 @@ public class BaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder) 
     {
         modelBuilder.Entity<BaseEntity>().UseTpcMappingStrategy();
-        modelBuilder.Entity<Auditory>();
+        modelBuilder.Entity<Auditory>().HasOne(a => a.cafedra).WithMany();
         modelBuilder.Entity<CafedraEntity>();
         modelBuilder.Entity<AuditoryComponentEntity>().UseTpcMappingStrategy();
         modelBuilder.Entity<ComputerEntity>();
