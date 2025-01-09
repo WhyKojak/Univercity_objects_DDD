@@ -86,14 +86,20 @@ public class MultimediaController : ControllerBase
         }
     }
     [HttpPut]
-    public ActionResult<MultimediaEqumentEntity> Update(MultimediaEqumentEntity entity)
+    public ActionResult<MultimediaEqumentEntity> Update(UpdateMultimediaEqumentDTO dto)
     {
-        if (entity == null)
+        if (dto == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
         try
         {
+            var entity = repository.Get(dto.Guid);
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.inv_number = dto.inv_number;
+            entity.model= dto.model;
+            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);
 
@@ -106,5 +112,4 @@ public class MultimediaController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
 }

@@ -7,14 +7,9 @@ using Univercity_objects.Domain;
 
 namespace Univercity_objects.Infrastructure.Repository
 {
-    public class FurnitureRepository : GenericRepository<FurnitureEntity>
+    public class FurnitureRepository : AuditoryComponentRepository<FurnitureEntity>
     {
 
         public FurnitureRepository(BaseContext context) : base(context) { }
-
-        public IEnumerable<FurnitureEntity> GetByAuditory(Guid auditory)
-        {
-            return dbSet.Where(a => a.Auditory.guid == auditory).ToList();
-        }
     }
 }

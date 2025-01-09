@@ -25,9 +25,9 @@ public class BaseContext : DbContext
         modelBuilder.Entity<Auditory>().HasOne(a => a.cafedra).WithMany();
         modelBuilder.Entity<CafedraEntity>();
         modelBuilder.Entity<AuditoryComponentEntity>().UseTpcMappingStrategy();
-        modelBuilder.Entity<ComputerEntity>();
-        modelBuilder.Entity<FurnitureEntity>();
-        modelBuilder.Entity<MultimediaEqumentEntity>();
+        modelBuilder.Entity<ComputerEntity>().HasOne(a => a.Auditory).WithMany();
+        modelBuilder.Entity<FurnitureEntity>().HasOne(a => a.Auditory).WithMany();
+        modelBuilder.Entity<MultimediaEqumentEntity>().HasOne(a => a.Auditory).WithMany();
         base.OnModelCreating(modelBuilder);
     }
 

@@ -8,15 +8,11 @@ using Univercity_objects.Domain;
 
 namespace Univercity_objects.Infrastructure.Repository
 {
-    public class ComputerRepository : GenericRepository<ComputerEntity>
+    public class ComputerRepository : AuditoryComponentRepository<ComputerEntity>
     {
 
         public ComputerRepository(BaseContext context) : base(context) { }
 
-        public IEnumerable<ComputerEntity> GetByAuditory(Guid auditory)
-        {
-            return dbSet.Where(a => a.Auditory.guid == auditory).ToList();
-        }
     }
     
 }

@@ -8,13 +8,9 @@ using Univercity_objects.Domain;
 
 namespace Univercity_objects.Infrastructure.Repository
 {
-    public class MultimediaEqumentRepository : GenericRepository<MultimediaEqumentEntity>
+    public class MultimediaEqumentRepository : AuditoryComponentRepository<MultimediaEqumentEntity>
     {
         public MultimediaEqumentRepository(BaseContext context) : base(context) { }
 
-        public IEnumerable<MultimediaEqumentEntity> GetByAuditory(Guid auditory)
-        {
-            return dbSet.Where(a => a.Auditory.guid == auditory).ToList();
-        }
     }
 }

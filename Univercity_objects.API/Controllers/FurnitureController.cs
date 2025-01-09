@@ -84,15 +84,21 @@ public class FurnitureController : ControllerBase
             return NotFound("dededfe");
         }
     }
+
     [HttpPut]
-    public ActionResult<FurnitureEntity> Update(FurnitureEntity entity)
+    public ActionResult<FurnitureEntity> Update(UpdateFurnitureDTO dto)
     {
-        if (entity == null)
+        if (dto == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
         try
         {
+            var entity = repository.Get(dto.Guid);
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.inv_number = dto.inv_number;
+            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);
 
@@ -105,5 +111,4 @@ public class FurnitureController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
 }
