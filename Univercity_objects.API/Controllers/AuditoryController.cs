@@ -3,21 +3,23 @@ using Microsoft.AspNetCore.Mvc;
 using Univercity_objects.API.Controllers.DTO;
 using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
+using Univercity_objects.Infrastructure.Repository;
 
 namespace Univercity_objects.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuditoryController : ControllerBase
+public class AuditoryController(AuditoryRepository repository,
+                           CafedraRepository cafedraRepository,
+                           ComputerRepository computerRepository,
+                           FurnitureRepository furnitureRepository,
+                           MultimediaEqumentRepository multimediaEqumentRepository) : ControllerBase
 {
-    private AuditoryRepository repository;
-    private CafedraRepository cafedraRepository;
-
-    public AuditoryController (AuditoryRepository repository, CafedraRepository cafedraRepository)
-    {
-        this.repository = repository;
-        this.cafedraRepository = cafedraRepository;
-    }
+    private AuditoryRepository repository = repository;
+    private CafedraRepository cafedraRepository = cafedraRepository;
+    private ComputerRepository computerRepository = computerRepository;
+    private FurnitureRepository furnitureRepository = furnitureRepository;
+    private MultimediaEqumentRepository multimediaEqumentRepository = multimediaEqumentRepository;
 
     [HttpGet]
     public IActionResult GetAll()
@@ -35,6 +37,39 @@ public class AuditoryController : ControllerBase
             return NotFound();
         }
         return Ok(entity);
+    }
+
+    [HttpGet("{guid}/computers")]
+    public ActionResult GetComputers(Guid guid)
+    {
+        var entities = computerRepository.GetByAuditory(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpGet("{guid}/furnitures")]
+    public ActionResult GetFurnitures(Guid guid)
+    {
+        var entities = furnitureRepository.GetByAuditory(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpGet("{guid}/multimedia")]
+    public ActionResult GetMultimedia(Guid guid)
+    {
+        var entities = multimediaEqumentRepository.GetByAuditory(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
     }
 
     [HttpPost]

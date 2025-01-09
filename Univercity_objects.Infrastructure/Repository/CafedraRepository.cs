@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,49 +7,10 @@ using System.Threading.Tasks;
 using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 
-public class CafedraRepository
+namespace Univercity_objects.Infrastructure.Repository
 {
-    private BaseContext db;
-
-    public CafedraRepository(BaseContext db)
+    public class CafedraRepository : GenericRepository<CafedraEntity>
     {
-        this.db = db ?? throw new ArgumentNullException(nameof(db));
-    }
-
-    public IEnumerable<CafedraEntity> GetAll()
-    {
-        return db.CafedraEntities.ToList();
-    }
-
-    public CafedraEntity Get(Guid guid)
-    {
-        return db.CafedraEntities.Find(guid);
-    }
-
-    public void Create(CafedraEntity entity)
-    {
-        db.CafedraEntities.Add(entity);
-        db.SaveChanges();
-    }
-
-    public void Update(CafedraEntity entity)
-    {
-        db.CafedraEntities.Update(entity);
-        db.SaveChanges();
-    }
-
-    public void Delete(Guid guid)
-    {
-        CafedraEntity entity = db.CafedraEntities.Find(guid);
-        if (entity != null)
-        {
-            db.CafedraEntities.Remove(entity);
-            db.SaveChanges();
-        }
-    }
-
-    public void Save()
-    {
-        db.SaveChanges();
+        public CafedraRepository(BaseContext context): base (context) { }
     }
 }

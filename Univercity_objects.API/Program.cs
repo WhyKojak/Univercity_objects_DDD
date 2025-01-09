@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Univercity_objects.Infrastructure.Repository;
 
 
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -16,6 +18,9 @@ builder.Services.AddDbContext<Univercity_objects.Infrastructure.BaseContext>(opt
 
 builder.Services.AddScoped<CafedraRepository>();
 builder.Services.AddScoped<AuditoryRepository>();
+builder.Services.AddScoped<ComputerRepository>();
+builder.Services.AddScoped<FurnitureRepository>();
+builder.Services.AddScoped<MultimediaEqumentRepository>();
 
 var app = builder.Build();
 
@@ -30,5 +35,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapRazorPages();
 
 app.Run();

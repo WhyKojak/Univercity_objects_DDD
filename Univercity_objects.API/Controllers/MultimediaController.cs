@@ -1,21 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Univercity_objects.API.Controllers.DTO;
 using Univercity_objects.Domain;
+using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
 namespace Univercity_objects.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CafedraController : ControllerBase
+public class MultimediaController : ControllerBase
 {
-    private CafedraRepository repository;
+    private MultimediaEqumentRepository repository;
     private AuditoryRepository auditoryRepository;
-    public CafedraController(CafedraRepository repository, AuditoryRepository auditoryRepository)
+    public MultimediaController(MultimediaEqumentRepository repository, AuditoryRepository auditoryRepository)
     {
         this.repository = repository;
         this.auditoryRepository = auditoryRepository;
     }
- 
 
     [HttpGet]
     public ActionResult GetAll()
@@ -35,21 +37,10 @@ public class CafedraController : ControllerBase
         return Ok(entity);
     }
 
-    [HttpGet("{guid}/auditories")]
-    public ActionResult GetAuditories(Guid guid)
-    {
-        var entities = auditoryRepository.GetByCafedra(guid);
-        if (entities == null)
-        {
-            return NotFound();
-        }
-        return Ok(entities);
-    }
-
     [HttpPost]
-    public ActionResult<CafedraEntity> Create(CafedraEntity entity)
+    public ActionResult<MultimediaEqumentEntity> Create(CreateMultimediaEqumentDTO dto)
     {
-        if (entity == null)
+        if (dto == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
@@ -62,6 +53,12 @@ public class CafedraController : ControllerBase
 
         try
         {
+            var entity = new MultimediaEqumentEntity();
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.inv_number = dto.inv_number;
+            entity.model = dto.model;
+            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Create(entity);
 
@@ -71,7 +68,7 @@ public class CafedraController : ControllerBase
         catch (Exception ex)
         {
             // В случае ошибки возвращаем статус 500 с сообщением об ошибке
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, $"Internal server error: {ex}");
         }
     }
 
@@ -89,7 +86,7 @@ public class CafedraController : ControllerBase
         }
     }
     [HttpPut]
-    public ActionResult<CafedraEntity> Update(CafedraEntity entity)
+    public ActionResult<MultimediaEqumentEntity> Update(MultimediaEqumentEntity entity)
     {
         if (entity == null)
         {

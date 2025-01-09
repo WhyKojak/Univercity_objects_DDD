@@ -7,54 +7,26 @@ using System.Threading.Tasks;
 using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 
-public class AuditoryRepository : IRepository<Auditory>
+namespace Univercity_objects.Infrastructure.Repository
 {
-    private BaseContext db;
-
-    public AuditoryRepository(BaseContext db)
+    public class AuditoryRepository : GenericRepository<Auditory>
     {
-        this.db = db ?? throw new ArgumentNullException(nameof(db));
-    }
 
-    public IEnumerable<Auditory> GetAll()
-    {
-        return db.Auditories.Include("cafedra").ToList();
-    }
+        public AuditoryRepository(BaseContext context) : base(context) { }
 
-    public Auditory Get(Guid guid)
-    {
-        return db.Auditories.Where(a => a.guid == guid).Include("cafedra").First();
-    }
-
-    public void Create(Auditory entity)
-    {
-        db.Auditories.Add(entity);
-        db.SaveChanges();
-    }
-
-    public void Update(Auditory entity)
-    {
-        db.Auditories.Update(entity);
-        db.SaveChanges();
-    }
-
-    public void Delete(Guid guid)
-    {
-        Auditory entity = db.Auditories.Find(guid);
-        if (entity != null)
+        public override IEnumerable<Auditory> GetAll()
         {
-            db.Auditories.Remove(entity);
-            db.SaveChanges();
+            return dbSet.Include("cafedra").ToList();
         }
-    }
 
-    public void Save()
-    {
-        db.SaveChanges();
-    }
+        public override Auditory Get(Guid guid)
+        {
+            return dbSet.Where(a => a.guid == guid).Include("cafedra").First();
+        }
 
-    public IEnumerable<Auditory> GetByCafedra(Guid cafedra)
-    {
-        return db.Auditories.Where(a => a.cafedra.guid == cafedra).ToList();
+        public IEnumerable<Auditory> GetByCafedra(Guid cafedra)
+        {
+            return dbSet.Where(a => a.cafedra.guid == cafedra).ToList();
+        }
     }
 }
