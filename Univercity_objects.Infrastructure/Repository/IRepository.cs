@@ -1,4 +1,6 @@
-﻿namespace Univercity_objects.Infrastructure;
+﻿using Univercity_objects.Domain;
+
+namespace Univercity_objects.Infrastructure;
 
 interface IRepository<T> where T : class
 {

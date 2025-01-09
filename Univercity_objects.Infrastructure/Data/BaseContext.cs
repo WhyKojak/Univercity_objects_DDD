@@ -6,28 +6,28 @@ namespace Univercity_objects.Infrastructure;
 
 public class BaseContext : DbContext
 {
-    public DbSet<BaseEntity> BaseEntities { get; set; }
+    public DbSet<BaseEntity> BaseEntities { get; }
     public DbSet<Auditory> Auditories { get; set; }
     public DbSet<CafedraEntity> CafedraEntities { get; set; }
-    public DbSet<AuditoryComponentEntity> AuditoryComponentEntities { get; set; }
+    public DbSet<AuditoryComponentEntity> AuditoryComponentEntities { get; }
     public DbSet<ComputerEntity> ComputerEntities { get; set; }
     public DbSet<FurnitureEntity> FurnitureEntities { get; set; }  
     public DbSet<MultimediaEqumentEntity> MultimediaEqumentEntities { get; set; }
 
     public BaseContext(DbContextOptions<BaseContext> options) : base(options) 
     {
-        //Database.EnsureCreated();
+        Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) 
     {
-        modelBuilder.Entity<BaseEntity>().ToTable("BaseEntity");
-        modelBuilder.Entity<Auditory>().ToTable("Auditory");
-        modelBuilder.Entity<CafedraEntity>().ToTable("CafedraEntity");
-        modelBuilder.Entity<AuditoryComponentEntity>().ToTable("AuditoryComponentEntity");
-        modelBuilder.Entity<ComputerEntity>().ToTable("ComputerEntity");
-        modelBuilder.Entity<FurnitureEntity>().ToTable("FurnitureEntity");
-        modelBuilder.Entity<MultimediaEqumentEntity>().ToTable("MultimediaEqumentEntity");
+        modelBuilder.Entity<BaseEntity>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Auditory>().HasOne(a => a.cafedra).WithMany();
+        modelBuilder.Entity<CafedraEntity>();
+        modelBuilder.Entity<AuditoryComponentEntity>().UseTpcMappingStrategy();
+        modelBuilder.Entity<ComputerEntity>().HasOne(a => a.Auditory).WithMany();
+        modelBuilder.Entity<FurnitureEntity>().HasOne(a => a.Auditory).WithMany();
+        modelBuilder.Entity<MultimediaEqumentEntity>().HasOne(a => a.Auditory).WithMany();
         base.OnModelCreating(modelBuilder);
     }
 
