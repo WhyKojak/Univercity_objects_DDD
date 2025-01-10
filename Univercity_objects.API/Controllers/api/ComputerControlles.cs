@@ -1,22 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Univercity_objects.API.Controllers.DTO;
 using Univercity_objects.Domain;
+using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
-namespace Univercity_objects.API.Controllers;
+namespace Univercity_objects.API.Controllers.api;
 
 [ApiController]
-[Route("[controller]")]
-public class CafedraController(CafedraRepository repository,
-                         AuditoryRepository auditoryRepository,
-                         ComputerRepository computerRepository,
-                         FurnitureRepository furnitureRepository,
-                         MultimediaEqumentRepository multimediaEqumentRepository) : ControllerBase
+[Area("api")]
+[Route("[area]/[controller]")]
+public class ComputerController : ControllerBase
 {
-    private CafedraRepository repository = repository;
-    private AuditoryRepository auditoryRepository = auditoryRepository;
-    private ComputerRepository computerRepository = computerRepository;
-    private FurnitureRepository furnitureRepository = furnitureRepository;
-    private MultimediaEqumentRepository multimediaEqumentRepository = multimediaEqumentRepository;
+    private ComputerRepository repository;
+    private AuditoryRepository auditoryRepository;
+    public ComputerController(ComputerRepository repository, AuditoryRepository auditoryRepository)
+    {
+        this.repository = repository;
+        this.auditoryRepository = auditoryRepository;
+    }
 
     [HttpGet]
     public ActionResult GetAll()
@@ -36,54 +38,10 @@ public class CafedraController(CafedraRepository repository,
         return Ok(entity);
     }
 
-    [HttpGet("{guid}/auditories")]
-    public ActionResult GetAuditories(Guid guid)
-    {
-        var entities = auditoryRepository.GetByCafedra(guid);
-        if (entities == null)
-        {
-            return NotFound();
-        }
-        return Ok(entities);
-    }
-
-    [HttpGet("{guid}/computers")]
-    public ActionResult GetComputers(Guid guid)
-    {
-        var entities = computerRepository.GetByCafedra(guid);
-        if (entities == null)
-        {
-            return NotFound();
-        }
-        return Ok(entities);
-    }
-
-    [HttpGet("{guid}/furnitures")]
-    public ActionResult GetFurnitures(Guid guid)
-    {
-        var entities = furnitureRepository.GetByCafedra(guid);
-        if (entities == null)
-        {
-            return NotFound();
-        }
-        return Ok(entities);
-    }
-
-    [HttpGet("{guid}/multimedia")]
-    public ActionResult GetMultimedia(Guid guid)
-    {
-        var entities = multimediaEqumentRepository.GetByCafedra(guid);
-        if (entities == null)
-        {
-            return NotFound();
-        }
-        return Ok(entities);
-    }
-
     [HttpPost]
-    public ActionResult<CafedraEntity> Create(CafedraEntity entity)
+    public ActionResult<ComputerEntity> Create(CreateComputerDTO dto)
     {
-        if (entity == null)
+        if (dto == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
@@ -96,16 +54,22 @@ public class CafedraController(CafedraRepository repository,
 
         try
         {
+            var entity = new ComputerEntity();
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.inv_number = dto.inv_number;
+            entity.specification = dto.specification;
+            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { entity.guid }, entity);
         }
         catch (Exception ex)
         {
             // В случае ошибки возвращаем статус 500 с сообщением об ошибке
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, $"Internal server error: {ex}");
         }
     }
 
@@ -122,15 +86,22 @@ public class CafedraController(CafedraRepository repository,
             return NotFound("dededfe");
         }
     }
+
     [HttpPut]
-    public ActionResult<CafedraEntity> Update(CafedraEntity entity)
+    public ActionResult<ComputerEntity> Update(UpdateComputerDTO dto)
     {
-        if (entity == null)
+        if (dto == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
         try
         {
+            var entity = repository.Get(dto.Guid);
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.inv_number = dto.inv_number;
+            entity.specification = dto.specification;
+            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);
 
@@ -143,5 +114,4 @@ public class CafedraController(CafedraRepository repository,
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
 }
