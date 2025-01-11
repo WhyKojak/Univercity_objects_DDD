@@ -13,22 +13,37 @@
 <h1>Create cafedra</h1>
 
 <form method="post" @onsubmit="Submit" @formname="createCafedraForm">
-    <label>
+    <label class="col-form-label">
         Name: 
         <InputText @bind-Value="name"/>
-    </label>
-    <label>
+    </label> <br />
+    <label class="col-form-label">
         Description: 
         <InputText @bind-Value="description"/>
     </label>
-    <input type="submit" value="Submit" />
+    <button type="submit">Submit</button>
     <AntiforgeryToken />
 </form>
-<p>@prevname</p>
+
+@*  <EditForm OnSubmit="Submit" Model="cafedra" FormName="createCafedraForm">
+    <label>
+        Name:
+        <InputText @bind-Value="cafedra.name" />
+    </label>
+    <label>
+        Description:
+        <InputText @bind-Value="cafedra.description" />
+    </label>
+    <button type="submit">Submit</button>
+</EditForm> *@
+
+<p>@m</p> 
 @code {
-    private string? name;
-    private string? prevname;
-    private string? description;
+    [SupplyParameterFromForm]
+    private string? name { get; set; }
+    [SupplyParameterFromForm]
+    private string? description { get; set; }
+    string? m;
     private string? serviceEndpoint;
 
     protected override async Task OnInitializedAsync()
@@ -40,8 +55,11 @@
     {
         // if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(description))
         // {
-            var response = await Http.PostAsJsonAsync("https://localhost:7264/api/cafedra/", new { name = name, description = description });
-            prevname = name;
+        m = name + " - " + description;
+        Console.WriteLine(m);
+        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/cafedra/", new {name = name, description = description});
+        
         // }
     }
+
 }

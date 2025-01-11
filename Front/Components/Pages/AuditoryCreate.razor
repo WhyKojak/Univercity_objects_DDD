@@ -1,0 +1,73 @@
+﻿@page "/auditory/create"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Front.Components.Model
+@using Microsoft.AspNetCore.Antiforgery;
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject IHttpClientFactory ClientFactory
+@attribute [RequireAntiforgeryToken]
+
+<h1>Создание аудитории</h1>
+
+<form method="post" @onsubmit="Submit" @formname="createAuditoryForm">
+    <label class="col-form-label">
+        Название: 
+        <InputText @bind-Value="name"/>
+    </label> <br />
+    <label class="col-form-label">
+        Описание: 
+        <InputText @bind-Value="description"/>
+    </label>
+    <label class="col-form-label">
+        Инв. номер: 
+        <InputText @bind-Value="inv_number"/>
+    </label>
+    <label class="col-form-label">
+        Кафедра: 
+        <InputSelect @bind-Value="cafedraguid" >
+            @foreach (var cafedra in cafedras)
+            {
+                <option value="@cafedra.guid">@cafedra.name</option>
+            }
+        </InputSelect>
+    </label>
+    <button type="submit">Submit</button>
+    <AntiforgeryToken />
+</form>
+
+@code {
+    [SupplyParameterFromForm]
+    private string? name { get; set; }
+    [SupplyParameterFromForm]
+    private string? description { get; set; }
+    [SupplyParameterFromForm]
+    private string? inv_number { get; set; }
+    [SupplyParameterFromForm]
+    private string? cafedraguid { get; set; }
+
+    private IEnumerable<Model.Cafedra>? cafedras = []; 
+
+    private string? serviceEndpoint;
+
+    protected override async Task OnInitializedAsync()
+    {
+        serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
+        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+    }
+
+    private async Task Submit ()
+    {
+        // if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(description))
+        // {
+        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/auditory/", new {name = name,
+                                                                                               description = description, 
+                                                                                               inv_number = inv_number,
+                                                                                               cafedraguid = cafedraguid});
+        
+        // }
+    }
+
+}
