@@ -5,12 +5,13 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject IHttpClientFactory ClientFactory
+@attribute [StreamRendering]
 
 <h1>Аудитории</h1>
 
 @if (getauditoriesError || auditories is null)
 {
-    <p>Unable to get auditories from GitHub. Please try again later.</p>
+    <p>Не удалось получить аудитории.</p>
 }
 else
 {
@@ -32,13 +33,14 @@ else
                     <td>@branch.description</td>
                     <td>@branch.inv_number</td>
                     <td>@branch.cafedra.name</td>
-                    <td><button class="btn btn-light" >Изменить</button></td>
+                    <td><a href="auditory/update/@branch.guid"><button class="btn btn-light"> Изменить </button> </a></td>
                     <td><button class="btn btn-light" @onclick="(() => Delete(branch.guid))" >Удалить</button></td>
                 </tr>
             }
         </tbody>
     </table>
 }
+
 @code {
     private IEnumerable<Model.Auditory>? auditories = [];
     private bool getauditoriesError;

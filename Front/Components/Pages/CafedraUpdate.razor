@@ -1,4 +1,4 @@
-﻿@page "/cafedra/create"
+﻿@page "/cafedra/update/{cafedrastr}"
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Net.Http
@@ -12,25 +12,25 @@
 @attribute [RequireAntiforgeryToken]
 @attribute [StreamRendering]
 
-<h1>Создание кафедры</h1>
+<h1>Обновление кафедры</h1>
 
-<form method="post" @onsubmit="Submit" @formname="createCafedraForm">
+<form method="post" @onsubmit="Submit" @formname="updateCafedraForm">
     <table class="table align-content-center">
         <tr>
             <td>
                 <label class="col-form-label">
                     Название: 
-                </label> 
+                </label>
             </td>
             <td>
-                <InputText class="input-group-text" @bind-Value="name"/>
+                <InputText class="input-group-text" @bind-Value="name" />
             </td>
         </tr>
         <tr>
             <td>
                 <label class="col-form-label">
                     Описание: 
-                </label>
+                </label> 
             </td>
             <td>
                 <InputText class="input-group-text" @bind-Value="description" />
@@ -38,44 +38,50 @@
         </tr>
         <tr>
             <td></td>
-            <td class="align-content-center">
-                <button class ="btn btn-light" type="submit">Создать</button>
+            <td>
+                <button class="btn btn-light " type="submit" >Применить</button>
             </td>
         </tr>
+        <AntiforgeryToken />
     </table>
-    <AntiforgeryToken />
 </form>
-
-<!--<EditForm OnSubmit="Submit" Model="cafedra" FormName="createCafedraForm">
-    <label>
-        Name:
-        <InputText @bind-Value="cafedra.name" />
-    </label>
-    <label>
-        Description:
-        <InputText @bind-Value="cafedra.description" />
-    </label>
-    <button type="submit">Submit</button>
-</EditForm> 
--->
-
 
 @code {
     [SupplyParameterFromForm]
     private string? name { get; set; }
     [SupplyParameterFromForm]
     private string? description { get; set; }
-    private string? serviceEndpoint;
 
+    private Guid cafedraguid { get; set; }
+
+    [Parameter]
+    public string cafedrastr { get; set; }
+
+    private IEnumerable<Model.Cafedra>? cafedras = [];
+
+    private string? serviceEndpoint;
     protected override async Task OnInitializedAsync()
     {
         serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
+        if (cafedras.Count() == 0)
+        {
+            cafedraguid = Guid.Parse(cafedrastr);
+            cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+            foreach (var cafedra in cafedras)
+            {
+                if (cafedra.guid == cafedraguid)
+                {
+                    name = cafedra.name;
+                    description = cafedra.description;
+
+                }
+            }
+        }
     }
 
     private async Task Submit ()
     {
-
-        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/cafedra/", new {name = name, description = description});
+        var response = await Http.PutAsJsonAsync("https://localhost:7264/api/cafedra/", new {guid = cafedraguid, name = name, description = description});
         
         if (response.IsSuccessStatusCode)
         {

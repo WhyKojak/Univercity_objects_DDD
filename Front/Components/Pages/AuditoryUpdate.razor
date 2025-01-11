@@ -1,4 +1,4 @@
-﻿@page "/auditory/create"
+﻿@page "/auditory/update/{auditorystr}"
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Net.Http
@@ -12,18 +12,18 @@
 @attribute [RequireAntiforgeryToken]
 @attribute [StreamRendering]
 
-<h1>Создание аудитории</h1>
+<h1>Обновление кафедры</h1>
 
-<form method="post" @onsubmit="Submit" @formname="createAuditoryForm">
+<form method="post" @onsubmit="Submit" @formname="updateAuditoryForm">
     <table class=" table align-content-center table-group-divider">
         <tr>
             <td>
                 <label class="col-form-label">
-                Название:
+                    Название:
                 </label>
             </td>
             <td>
-                <InputText class="input-group-text" @bind-Value="name" />
+                <InputText class="input-group-text" @bind-Value="name"/>
             </td>
         </tr>
         <tr>
@@ -40,7 +40,7 @@
             <td>
                 <label class="col-form-label">
                     Инв. номер:
-                </label> 
+                </label>
             </td>
             <td>
                 <InputText class="input-group-text" @bind-Value="inv_number" />
@@ -48,13 +48,13 @@
         </tr>
         <tr>
             <td>
-            <label class="col-form-label">
-            Кафедра:
-            </label>
+                <label class="col-form-label">
+                    Кафедра:
+                </label>
             </td>
             <td class="align-content-center">
-            <InputSelect class="input-group-text" @bind-Value="cafedraguid">
-                @foreach (var cafedra in cafedras)
+                <InputSelect class="input-group-text" @bind-Value="cafedraguid">
+                    @foreach (var cafedra in cafedras)
                     {
                         <option value="@cafedra.guid">@cafedra.name</option>
                     }
@@ -71,6 +71,7 @@
     <AntiforgeryToken />
 </form>
 
+
 @code {
     [SupplyParameterFromForm]
     private string? name { get; set; }
@@ -79,27 +80,45 @@
     [SupplyParameterFromForm]
     private string? inv_number { get; set; }
     [SupplyParameterFromForm]
-    private string? cafedraguid { get; set; }
+    private Guid? cafedraguid { get; set; }
 
-    private IEnumerable<Model.Cafedra>? cafedras = []; 
+    private Guid auditoryguid { get; set; }
+
+    [Parameter]
+    public string auditorystr { get; set; }
+
+    private IEnumerable<Model.Auditory>? auditories = [];
+    private IEnumerable<Model.Cafedra>? cafedras = [];
 
     private string? serviceEndpoint;
-
     protected override async Task OnInitializedAsync()
     {
         serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
-        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        if (auditories.Count() == 0)
+        {
+            auditoryguid = Guid.Parse(auditorystr);
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+            cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+            foreach (var auditory in auditories)
+            {
+                if (auditory.guid == auditoryguid)
+                {
+                    name = auditory.name;
+                    description = auditory.description;
+                    inv_number = auditory.inv_number;
+                    cafedraguid = auditory.cafedra.guid;
+                }
+            }
+        }
     }
 
     private async Task Submit ()
     {
-        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/auditory/", new
-        {
-            name = name,
-            description = description,
+        var response = await Http.PutAsJsonAsync("https://localhost:7264/api/auditory/", new { guid = auditoryguid, 
+            name = name,  
+            description = description, 
             inv_number = inv_number,
-            cafedraguid = cafedraguid
-        });
+            cafedraguid = cafedraguid});
 
         if (response.IsSuccessStatusCode)
         {
