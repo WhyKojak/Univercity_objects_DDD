@@ -1,0 +1,124 @@
+﻿@page "/multimedia/create"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Front.Components.Model
+@using Microsoft.AspNetCore.Antiforgery;
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken]
+@attribute [StreamRendering]
+
+<h1>Создание мультимедийного оборудования</h1>
+
+<form method="post" @onsubmit="Submit" @formname="createMultimediaForm">
+	<table class="table align-content-center table-group-divider">
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Название:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="name" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Описание:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="description" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Инв. номер:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="inv_number" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Модель:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="model" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Аудитория:
+				</label>
+			</td>
+			<td class="align-content-center">
+				<InputSelect class="input-group-text" @bind-Value="auditoryguid">
+					<option value=""></option>
+					@foreach (var auditory in auditories)
+					{
+						<option value="@auditory.guid">@auditory.name</option>
+					}
+				</InputSelect>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td class="align-content-center">
+				<button class="btn btn-light" type="submit">Создать</button>
+			</td>
+		</tr>
+	</table>
+	<AntiforgeryToken />
+</form>
+
+@code {
+	[SupplyParameterFromForm]
+	private string? name { get; set; }
+	[SupplyParameterFromForm]
+	private string? description { get; set; }
+	[SupplyParameterFromForm]
+	private string? inv_number { get; set; }
+	[SupplyParameterFromForm]
+	private string? model { get; set; }
+	[SupplyParameterFromForm]
+	private string? auditoryguid { get; set; }
+
+	private IEnumerable<Model.Auditory>? auditories = [];
+
+	private string? serviceEndpoint;
+
+	protected override async Task OnInitializedAsync()
+	{
+		serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
+		auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+	}
+
+	private async Task Submit()
+	{
+		var response = await Http.PostAsJsonAsync("https://localhost:7264/api/multimedia/", new
+		{
+			name = name,
+			description = description,
+			inv_number = inv_number,
+			auditoryguid = auditoryguid,
+			model = model
+		});
+
+		if (response.IsSuccessStatusCode)
+		{
+			NavigationManager.NavigateTo("/multimedia");
+		}
+	}
+
+}
