@@ -22,12 +22,12 @@ public class BaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder) 
     {
         modelBuilder.Entity<BaseEntity>().UseTpcMappingStrategy();
-        modelBuilder.Entity<Auditory>().HasOne(a => a.cafedra).WithMany();
+        modelBuilder.Entity<Auditory>().Navigation(a => a.cafedra).AutoInclude();
         modelBuilder.Entity<CafedraEntity>();
         modelBuilder.Entity<AuditoryComponentEntity>().UseTpcMappingStrategy();
-        modelBuilder.Entity<ComputerEntity>().HasOne(a => a.Auditory).WithMany();
-        modelBuilder.Entity<FurnitureEntity>().HasOne(a => a.Auditory).WithMany();
-        modelBuilder.Entity<MultimediaEqumentEntity>().HasOne(a => a.Auditory).WithMany();
+        modelBuilder.Entity<ComputerEntity>().Navigation(a => a.Auditory).AutoInclude();
+        modelBuilder.Entity<FurnitureEntity>().Navigation(a => a.Auditory).AutoInclude();
+        modelBuilder.Entity<MultimediaEqumentEntity>().Navigation(a => a.Auditory).AutoInclude();
         base.OnModelCreating(modelBuilder);
     }
 
