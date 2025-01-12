@@ -1,0 +1,66 @@
+﻿@page "/furniture"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IHttpClientFactory ClientFactory
+@attribute [StreamRendering]
+
+<h1>Фурнитура</h1>
+
+@if (furniture is null)
+{
+    <p>Загружаем данные</p>
+}
+else
+{
+    <a class="btn btn-outline-light" href="furniture/create">Создать</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Описание</th>
+                <th>Инв. номер</th>
+                <th>Аудитория</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fur in furniture)
+            {
+                <tr>
+                    <td>@fur.name</td>
+                    <td>@fur.description</td>
+                    <td>@fur.inv_number</td>
+                    <td>@fur.cafedra.name</td>
+                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-light"> Изменить </button> </a></td>
+                    <td><button class="btn btn-light" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Model.Auditory>? furniture = [];
+    private string? serviceEndpoint;
+
+    protected override async Task OnInitializedAsync()
+    {
+        furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/furniture/");
+    }
+
+    protected async void Delete (Guid guid) 
+    {
+        var response = await Http.DeleteAsync("https://localhost:7264/api/furniture/" + guid);
+        if (response.IsSuccessStatusCode) 
+        {
+            await OnInitializedAsync();
+            StateHasChanged();
+        } else 
+        {
+            Console.WriteLine("Error"); 
+        }
+
+    }
+}
