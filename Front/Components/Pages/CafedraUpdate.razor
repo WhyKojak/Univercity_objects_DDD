@@ -57,25 +57,20 @@
     [Parameter]
     public string cafedrastr { get; set; }
 
-    private IEnumerable<Model.Cafedra>? cafedras = [];
+    private Model.Cafedra? cafedra { get; set; }
 
     private string? serviceEndpoint;
     protected override async Task OnInitializedAsync()
     {
         serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
-        if (cafedras.Count() == 0)
+        if (cafedra is null)
         {
             cafedraguid = Guid.Parse(cafedrastr);
-            cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
-            foreach (var cafedra in cafedras)
-            {
-                if (cafedra.guid == cafedraguid)
-                {
-                    name = cafedra.name;
-                    description = cafedra.description;
+            // GetById
+            cafedra = await Http.GetFromJsonAsync<Model.Cafedra>("https://localhost:7264/api/cafedra/" + cafedrastr);
 
-                }
-            }
+            name = cafedra.name;
+            description = cafedra.description;
         }
     }
 
