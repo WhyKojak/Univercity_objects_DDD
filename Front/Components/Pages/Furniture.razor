@@ -15,7 +15,7 @@
 }
 else
 {
-    <a class="btn btn-outline-light" href="furniture/create">Создать</a>
+    <a class="btn btn-dark" href="furniture/create">Создать</a>
     <table class="table">
         <thead>
             <tr>
@@ -33,8 +33,8 @@ else
                     <td>@fur.description</td>
                     <td>@fur.inv_number</td>
                     <td>@fur.Auditory.name</td>
-                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-light"> Изменить </button> </a></td>
-                    <td><button class="btn btn-light" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
+                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
+                    <td><button class="btn btn-dark" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
                 </tr>
             }
         </tbody>

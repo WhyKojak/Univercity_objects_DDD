@@ -29,9 +29,9 @@ else
                 <tr>
                     <td>@cafedra.name</td>
                     <td>@cafedra.description</td>
-                    <td><a href="cafedra/update/@cafedra.guid"><button class="btn btn-light"> Изменить </button> </a></td>
+                    <td><a href="cafedra/update/@cafedra.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
 
-                    <td><button class="btn btn-light" @onclick="(() => Delete(cafedra.guid))" >Удалить</button></td>
+                    <td><button class="btn btn-dark" @onclick="(() => Delete(cafedra.guid))">Удалить</button></td>
                 </tr>
             }
         </tbody>
