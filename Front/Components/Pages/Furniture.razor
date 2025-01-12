@@ -15,7 +15,7 @@
 }
 else
 {
-    <a class="btn btn-outline-dark" href="furniture/create">Создать</a>
+    <a class="btn btn-dark" href="furniture/create">Создать</a>
     <table class="table">
         <thead>
             <tr>
@@ -32,9 +32,9 @@ else
                     <td>@fur.name</td>
                     <td>@fur.description</td>
                     <td>@fur.inv_number</td>
-                    <td>@fur.cafedra.name</td>
-                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-light"> Изменить </button> </a></td>
-                    <td><button class="btn btn-light" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
+                    <td>@fur.Auditory.name</td>
+                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
+                    <td><button class="btn btn-dark" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
                 </tr>
             }
         </tbody>
@@ -42,12 +42,12 @@ else
 }
 
 @code {
-    private IEnumerable<Model.Auditory>? furniture = [];
+    private IEnumerable<Model.Furniture>? furniture = [];
     private string? serviceEndpoint;
 
     protected override async Task OnInitializedAsync()
     {
-        furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/furniture/");
+        furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/furniture/");
     }
 
     protected async void Delete (Guid guid) 

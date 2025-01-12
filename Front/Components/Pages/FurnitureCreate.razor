@@ -1,4 +1,4 @@
-﻿@page "/auditory/create"
+﻿@page "/furniture/create"
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Net.Http
@@ -12,9 +12,9 @@
 @attribute [RequireAntiforgeryToken]
 @attribute [StreamRendering]
 
-<h1>Создание аудитории</h1>
+<h1>Создание фурнитура</h1>
 
-<form method="post" @onsubmit="Submit" @formname="createAuditoryForm">
+<form method="post" @onsubmit="Submit" @formname="createFurnitureForm">
     <table class=" table align-content-center table-group-divider">
         <tr>
             <td>
@@ -49,14 +49,15 @@
         <tr>
             <td>
             <label class="col-form-label">
-            Кафедра:
+            Aудитория:
             </label>
             </td>
             <td class="align-content-center">
-            <InputSelect class="input-group-text" @bind-Value="cafedraguid">
-                @foreach (var cafedra in cafedras)
+                <InputSelect class="input-group-text" @bind-Value="AuditoryGuid">
+                    <option value=""></option>
+                    @foreach (var auditory in auditories)
                     {
-                        <option value="@cafedra.guid">@cafedra.name</option>
+                        <option value="@auditory.guid">@auditory.name</option>
                     }
                 </InputSelect>
             </td>
@@ -79,31 +80,28 @@
     [SupplyParameterFromForm]
     private string? inv_number { get; set; }
     [SupplyParameterFromForm]
-    private string? cafedraguid { get; set; }
+    private string? AuditoryGuid { get; set; }
 
-    private IEnumerable<Model.Cafedra>? cafedras = []; 
-
-    private string? serviceEndpoint;
+    private IEnumerable<Model.Auditory>? auditories = []; 
 
     protected override async Task OnInitializedAsync()
     {
-        serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
-        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
     }
 
     private async Task Submit ()
     {
-        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/auditory/", new
+        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/furniture/", new
         {
             name = name,
             description = description,
             inv_number = inv_number,
-            cafedraguid = cafedraguid
+            AuditoryGuid = AuditoryGuid
         });
 
         if (response.IsSuccessStatusCode)
         {
-            NavigationManager.NavigateTo("/auditory");
+            NavigationManager.NavigateTo("/furniture");
         }
     }
 

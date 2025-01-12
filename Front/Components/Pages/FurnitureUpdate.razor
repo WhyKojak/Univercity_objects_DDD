@@ -1,4 +1,4 @@
-﻿@page "/auditory/create"
+﻿@page "/furniture/update/{furniturestr}"
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Net.Http
@@ -12,18 +12,18 @@
 @attribute [RequireAntiforgeryToken]
 @attribute [StreamRendering]
 
-<h1>Создание аудитории</h1>
+<h1>Обновление фурнитуры</h1>
 
-<form method="post" @onsubmit="Submit" @formname="createAuditoryForm">
+<form method="post" @onsubmit="Submit" @formname="updateFurnitureForm">
     <table class=" table align-content-center table-group-divider">
         <tr>
             <td>
                 <label class="col-form-label">
-                Название:
+                    Название:
                 </label>
             </td>
             <td>
-                <InputText class="input-group-text" @bind-Value="name" />
+                <InputText class="input-group-text" @bind-Value="name"/>
             </td>
         </tr>
         <tr>
@@ -40,7 +40,7 @@
             <td>
                 <label class="col-form-label">
                     Инв. номер:
-                </label> 
+                </label>
             </td>
             <td>
                 <InputText class="input-group-text" @bind-Value="inv_number" />
@@ -48,16 +48,15 @@
         </tr>
         <tr>
             <td>
-            <label class="col-form-label">
-            Кафедра:
-            </label>
+                <label class="col-form-label">
+                    Aудитория:
+                </label>
             </td>
             <td class="align-content-center">
-            <InputSelect class="input-group-text" @bind-Value="cafedraguid">
-                <option value=""></option>
-                @foreach (var cafedra in cafedras)
+                <InputSelect class="input-group-text" @bind-Value="AuditoryGuid">
+                    @foreach (var auditory in auditories)
                     {
-                        <option value="@cafedra.guid">@cafedra.name</option>
+                        <option value="@auditory.guid">@auditory.name</option>
                     }
                 </InputSelect>
             </td>
@@ -65,12 +64,13 @@
         <tr>
             <td></td>
             <td class="align-content-center">
-                <button class="btn btn-dark" type="submit">Создать</button>
+                <button class="btn btn-dark" type="submit">Применить изменения</button>
             </td>
         </tr>
     </table>
     <AntiforgeryToken />
 </form>
+
 
 @code {
     [SupplyParameterFromForm]
@@ -80,31 +80,44 @@
     [SupplyParameterFromForm]
     private string? inv_number { get; set; }
     [SupplyParameterFromForm]
-    private string? cafedraguid { get; set; }
+    private Guid? AuditoryGuid { get; set; }
 
-    private IEnumerable<Model.Cafedra>? cafedras = []; 
+    private Guid furnitureguid { get; set; }
 
-    private string? serviceEndpoint;
+    [Parameter]
+    public string furniturestr { get; set; }
+
+    private Model.Furniture? furniture { get; set; }
+    private IEnumerable<Model.Auditory>? auditories = [];
 
     protected override async Task OnInitializedAsync()
     {
-        serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
-        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        if (furniture is null)
+        {
+            furnitureguid = Guid.Parse(furniturestr);
+            // GetById
+            furniture = await Http.GetFromJsonAsync<Model.Furniture>("https://localhost:7264/api/furniture/" + furniturestr);
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+
+            name = furniture.name;
+            description = furniture.description;
+            inv_number = furniture.inv_number;
+            AuditoryGuid = furniture.Auditory.guid;
+        }
     }
 
     private async Task Submit ()
     {
-        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/auditory/", new
-        {
-            name = name,
-            description = description,
+        var response = await Http.PutAsJsonAsync("https://localhost:7264/api/furniture/", new { guid = furnitureguid, 
+            name = name,  
+            description = description, 
             inv_number = inv_number,
-            cafedraguid = cafedraguid
+            AuditoryGuid = AuditoryGuid
         });
 
         if (response.IsSuccessStatusCode)
         {
-            NavigationManager.NavigateTo("/auditory");
+            NavigationManager.NavigateTo("/furniture");
         }
     }
 
