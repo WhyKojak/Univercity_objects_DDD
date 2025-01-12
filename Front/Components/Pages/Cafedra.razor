@@ -15,7 +15,7 @@
 }
 else
 {
-    <a class="btn btn-outline-light" href="cafedra/create">Создать</a>
+    <a class="btn btn-outline-dark" href="cafedra/create">Создать</a>
     <table class="table">
         <thead>
             <tr>
@@ -24,14 +24,14 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var branch in cafedras)
+            @foreach (var cafedra in cafedras)
             {
                 <tr>
-                    <td>@branch.name</td>
-                    <td>@branch.description</td>
-                    <td><a href="cafedra/update/@branch.guid"><button class="btn btn-light"> Изменить </button> </a></td>
+                    <td>@cafedra.name</td>
+                    <td>@cafedra.description</td>
+                    <td><a href="cafedra/update/@cafedra.guid"><button class="btn btn-light"> Изменить </button> </a></td>
 
-                    <td><button class="btn btn-light" @onclick="(() => Delete(branch.guid))" >Удалить</button></td>
+                    <td><button class="btn btn-light" @onclick="(() => Delete(cafedra.guid))" >Удалить</button></td>
                 </tr>
             }
         </tbody>

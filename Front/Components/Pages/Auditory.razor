@@ -9,13 +9,13 @@
 
 <h1>Аудитории</h1>
 
-@if (getauditoriesError || auditories is null)
+@if (auditories == null)
 {
-    <p>Не удалось получить аудитории.</p>
+    <p>Загружаем данные</p>
 }
 else
 {
-    <a class="btn btn-outline-light" href="auditory/create">Создать</a>
+    <a class="btn btn-outline-dark" href="auditory/create">Создать новую запись</a>
     <table class="table">
         <thead>
             <tr>
@@ -26,15 +26,15 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var branch in auditories)
+            @foreach (var auditory in auditories)
             {
                 <tr>
-                    <td>@branch.name</td>
-                    <td>@branch.description</td>
-                    <td>@branch.inv_number</td>
-                    <td>@branch.cafedra.name</td>
-                    <td><a href="auditory/update/@branch.guid"><button class="btn btn-light"> Изменить </button> </a></td>
-                    <td><button class="btn btn-light" @onclick="(() => Delete(branch.guid))" >Удалить</button></td>
+                    <td>@auditory.name</td>
+                    <td>@auditory.description</td>
+                    <td>@auditory.inv_number</td>
+                    <td>@auditory.cafedra.name</td>
+                    <td><a href="auditory/update/@auditory.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
+                    <td><button class="btn btn-dark" @onclick="(() => Delete(auditory.guid))" >Удалить</button></td>
                 </tr>
             }
         </tbody>
@@ -43,7 +43,6 @@ else
 
 @code {
     private IEnumerable<Model.Auditory>? auditories = [];
-    private bool getauditoriesError;
     private string? serviceEndpoint;
 
     protected override async Task OnInitializedAsync()
