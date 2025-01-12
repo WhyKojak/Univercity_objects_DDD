@@ -1,4 +1,4 @@
-﻿@page "/multimediaEquipment"
+﻿@page "/multimedia"
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Net.Http
@@ -15,7 +15,7 @@
 }
 else
 {
-	<a class="btn btn-outline-dark" href="multimediaEquipment/create">Создать новую запись</a>
+	<a class="btn btn-outline-dark create-link" href="multimedia/create">Создать новую запись</a>
 	<table class="table">
 		<thead>
 			<tr>
@@ -23,7 +23,7 @@ else
 				<th>Описание</th>
 				<th>Инв. номер</th>
 				<th>Модель</th>
-				<th>Аудитории</th>
+				<th>Аудитория</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -35,7 +35,7 @@ else
 					<td>@multimediaEquipment.inv_number</td>
 					<td>@multimediaEquipment.model</td>
 					<td>@multimediaEquipment.Auditory.name</td>
-					<td><a href="multimediaEquipment/update/@multimediaEquipment.guid"><button class="btn btn-light"> Изменить </button> </a></td>
+					<td><a href="multimedia/update/@multimediaEquipment.guid"><button class="btn btn-light"> Изменить </button> </a></td>
 					<td><button class="btn btn-light" @onclick="(() => Delete(multimediaEquipment.guid))">Удалить</button></td>
 				</tr>
 			}
