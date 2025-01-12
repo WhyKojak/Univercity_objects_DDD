@@ -22,7 +22,16 @@ else
                 <th>Имя</th>
                 <th>Описание</th>
                 <th>Инв. номер</th>
-                <th>Кафедра</th>
+                <th>
+                    Кафедра:
+                    <select class="input-group-text" @onchange="refreshOnCafedraSelect">
+                        <option value="">Выберите кафедру</option>
+                        @foreach (var cafedra in cafedras)
+                        {
+                            <option value="@cafedra.guid">@cafedra.name</option>
+                        }
+                    </select>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -43,11 +52,18 @@ else
 
 @code {
     private IEnumerable<Model.Auditory>? auditories = [];
-    private string? serviceEndpoint;
+    private IEnumerable<Model.Cafedra>? cafedras = [];
+    private Guid? CafedraGuid;
 
     protected override async Task OnInitializedAsync()
     {
-        auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        if (CafedraGuid != null)
+        {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/auditories");
+        } else {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+        }
     }
 
     protected async void Delete (Guid guid) 
@@ -62,5 +78,19 @@ else
             Console.WriteLine("Error"); 
         }
 
+    }
+
+    private async void refreshOnCafedraSelect(ChangeEventArgs e)
+    {
+        if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+        {
+            CafedraGuid = Guid.Parse(e.Value.ToString());
+        }
+        else
+        {
+            CafedraGuid = null;
+        }
+        await OnInitializedAsync();
+        StateHasChanged();
     }
 }

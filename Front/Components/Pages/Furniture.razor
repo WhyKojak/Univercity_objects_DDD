@@ -24,7 +24,7 @@ else
                 <th>Инв. номер</th>
                 <th>
                     Аудитория:
-                    <select class="input-group-text" @onchange="refreshOnAuditorySelect">
+                    <select class="input-group-text" @onchange="refreshOnAuditorySelect" id="select-aud">
                         <option value="">Выберите аудиторию</option>
                         @foreach (var auditory in auditories)
                         {
@@ -53,8 +53,8 @@ else
                     <td>@fur.inv_number</td>
                     <td>@fur.Auditory.name</td>
                     <td>@fur.Auditory.cafedra.name</td>
-                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
-                    <td><button class="btn btn-dark" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
+                    <td><a href="furniture/update/@fur.guid"><button class="btn btn-outline-dark create-link"> Изменить </button> </a></td>
+                    <td><button class="btn btn-outline-dark create-link" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
                 </tr>
             }
         </tbody>

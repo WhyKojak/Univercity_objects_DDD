@@ -23,7 +23,26 @@ else
 				<th>Описание</th>
 				<th>Инв. номер</th>
 				<th>Модель</th>
-				<th>Аудитория</th>
+				<th>
+					Аудитория:
+					<select class="input-group-text" @onchange="refreshOnAuditorySelect" id="select-aud">
+						<option value="">Выберите аудиторию</option>
+						@foreach (var auditory in auditories)
+						{
+							<option value="@auditory.guid">@auditory.name</option>
+						}
+					</select>
+				</th>
+				<th>
+					Кафедра:
+					<select class="input-group-text" @onchange="refreshOnCafedraSelect">
+						<option value="">Выберите кафедру</option>
+						@foreach (var cafedra in cafedras)
+						{
+							<option value="@cafedra.guid">@cafedra.name</option>
+						}
+					</select>
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -35,6 +54,7 @@ else
 					<td>@multimediaEquipment.inv_number</td>
 					<td>@multimediaEquipment.model</td>
 					<td>@multimediaEquipment.Auditory.name</td>
+					<td>@multimediaEquipment.Auditory.cafedra.name</td>
 					<td><a href="multimedia/update/@multimediaEquipment.guid"><button class="btn btn-light"> Изменить </button> </a></td>
 					<td><button class="btn btn-light" @onclick="(() => Delete(multimediaEquipment.guid))">Удалить</button></td>
 				</tr>
@@ -45,11 +65,38 @@ else
 
 @code {
 	private IEnumerable<Model.MultimediaEqument>? multimediaEquipments = [];
-	private string? serviceEndpoint;
+	private IEnumerable<Model.Auditory>? auditories = [];
+	private IEnumerable<Model.Cafedra>? cafedras = [];
+	private Guid? AuditoryGuid;
+	private Guid? CafedraGuid;
 
 	protected override async Task OnInitializedAsync()
 	{
-		multimediaEquipments = await Http.GetFromJsonAsync<IEnumerable<Model.MultimediaEqument>>("https://localhost:7264/api/multimedia/");
+		cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+		if (CafedraGuid != null)
+		{
+			auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/auditories");
+			if (AuditoryGuid != null)
+			{
+				multimediaEquipments = await Http.GetFromJsonAsync<IEnumerable<Model.MultimediaEqument>>("https://localhost:7264/api/auditory/" + AuditoryGuid + "/multimedia");
+			}
+			else
+			{
+				multimediaEquipments = await Http.GetFromJsonAsync<IEnumerable<Model.MultimediaEqument>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/multimedia");
+			}
+		}
+		else
+		{
+			auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+			if (AuditoryGuid != null)
+			{
+				multimediaEquipments = await Http.GetFromJsonAsync<IEnumerable<Model.MultimediaEqument>>("https://localhost:7264/api/auditory/" + AuditoryGuid + "/multimedia");
+			}
+			else
+			{
+				multimediaEquipments = await Http.GetFromJsonAsync<IEnumerable<Model.MultimediaEqument>>("https://localhost:7264/api/multimedia/");
+			}
+		}
 	}
 
 	protected async void Delete(Guid guid)
@@ -65,5 +112,34 @@ else
 			Console.WriteLine("Error");
 		}
 
+	}
+
+	private async void refreshOnAuditorySelect(ChangeEventArgs e)
+	{
+		if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+		{
+			AuditoryGuid = Guid.Parse(e.Value.ToString());
+		}
+		else
+		{
+			AuditoryGuid = null;
+		}
+		await OnInitializedAsync();
+		StateHasChanged();
+	}
+
+	private async void refreshOnCafedraSelect(ChangeEventArgs e)
+	{
+		AuditoryGuid = null;
+		if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+		{
+			CafedraGuid = Guid.Parse(e.Value.ToString());
+		}
+		else
+		{
+			CafedraGuid = null;
+		}
+		await OnInitializedAsync();
+		StateHasChanged();
 	}
 }
