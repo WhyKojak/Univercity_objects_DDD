@@ -1,0 +1,142 @@
+﻿@page "/computer/update/{computerstr}"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Front.Components.Model
+@using Microsoft.AspNetCore.Antiforgery;
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken]
+@attribute [StreamRendering]
+
+<h1>Обновление кафедры</h1>
+
+<form method="post" @onsubmit="Submit" @formname="updateComputerForm">
+	<table class="table align-content-center table-group-divider">
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Название:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="name" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Описание:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="description" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Инв. номер:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="inv_number" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Спецификация:
+				</label>
+			</td>
+			<td>
+				<InputText class="input-group-text" @bind-Value="specification" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label class="col-form-label">
+					Аудитория:
+				</label>
+			</td>
+			<td class="align-content-center">
+				<InputSelect class="input-group-text" @bind-Value="auditoryguid">
+					<option value=""></option>
+					@foreach (var auditory in auditories)
+					{
+						<option value="@auditory.guid">@auditory.name</option>
+					}
+				</InputSelect>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td class="align-content-center">
+				<button class="btn btn-outline-dark create-button" type="submit">Применить изменения</button>
+			</td>
+		</tr>
+	</table>
+	<AntiforgeryToken />
+</form>
+
+
+@code {
+	[SupplyParameterFromForm]
+	private string? name { get; set; }
+	[SupplyParameterFromForm]
+	private string? description { get; set; }
+	[SupplyParameterFromForm]
+	private string? inv_number { get; set; }
+	[SupplyParameterFromForm]
+	private string? specification { get; set; }
+	[SupplyParameterFromForm]
+	private Guid? auditoryguid { get; set; }
+
+	[Parameter]
+	public string computerstr { get; set; }
+	private Guid computerguid { get; set; }
+
+	private Model.Computer? computer { get; set; }
+	private IEnumerable<Model.Auditory>? auditories = [];
+
+	private string? serviceEndpoint;
+	protected override async Task OnInitializedAsync()
+	{
+		serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
+		if (computer is null)
+		{
+			computerguid = Guid.Parse(computerstr);
+			// GetById
+			computer = await Http.GetFromJsonAsync<Model.Computer>("https://localhost:7264/api/computer/" + computerstr);
+			auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+
+			name = computer.name;
+			description = computer.description;
+			inv_number = computer.inv_number;
+			auditoryguid = computer.Auditory.guid;
+			specification = computer.specification;
+		}
+	}
+
+	private async Task Submit()
+	{
+		var response = await Http.PutAsJsonAsync("https://localhost:7264/api/computer/", new
+		{
+			guid = computerguid,
+			name = name,
+			description = description,
+			inv_number = inv_number,
+			auditoryguid = auditoryguid,
+			specification = specification
+		});
+
+		if (response.IsSuccessStatusCode)
+		{
+			NavigationManager.NavigateTo("/computer");
+		}
+	}
+
+}

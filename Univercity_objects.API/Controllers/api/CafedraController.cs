@@ -1,23 +1,23 @@
-﻿using Microsoft.AspNetCore.DataProtection.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using Univercity_objects.API.Controllers.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
 using Univercity_objects.Domain;
-using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
-namespace Univercity_objects.API.Controllers;
+namespace Univercity_objects.API.Controllers.api;
 
 [ApiController]
-[Route("[controller]")]
-public class FurnitureController : ControllerBase
+[Area("api")]
+[Route("[area]/[controller]")]
+public class CafedraController(CafedraRepository repository,
+                         AuditoryRepository auditoryRepository,
+                         ComputerRepository computerRepository,
+                         FurnitureRepository furnitureRepository,
+                         MultimediaEqumentRepository multimediaEqumentRepository) : ControllerBase
 {
-    private FurnitureRepository repository;
-    private AuditoryRepository auditoryRepository;
-    public FurnitureController(FurnitureRepository repository, AuditoryRepository auditoryRepository)
-    {
-        this.repository = repository;
-        this.auditoryRepository = auditoryRepository;
-    }
+    private CafedraRepository repository = repository;
+    private AuditoryRepository auditoryRepository = auditoryRepository;
+    private ComputerRepository computerRepository = computerRepository;
+    private FurnitureRepository furnitureRepository = furnitureRepository;
+    private MultimediaEqumentRepository multimediaEqumentRepository = multimediaEqumentRepository;
 
     [HttpGet]
     public ActionResult GetAll()
@@ -37,10 +37,54 @@ public class FurnitureController : ControllerBase
         return Ok(entity);
     }
 
-    [HttpPost]
-    public ActionResult<FurnitureEntity> Create(CreateFurnitureDTO dto)
+    [HttpGet("{guid}/auditories")]
+    public ActionResult GetAuditories(Guid guid)
     {
-        if (dto == null)
+        var entities = auditoryRepository.GetByCafedra(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpGet("{guid}/computers")]
+    public ActionResult GetComputers(Guid guid)
+    {
+        var entities = computerRepository.GetByCafedra(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpGet("{guid}/furnitures")]
+    public ActionResult GetFurnitures(Guid guid)
+    {
+        var entities = furnitureRepository.GetByCafedra(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpGet("{guid}/multimedia")]
+    public ActionResult GetMultimedia(Guid guid)
+    {
+        var entities = multimediaEqumentRepository.GetByCafedra(guid);
+        if (entities == null)
+        {
+            return NotFound();
+        }
+        return Ok(entities);
+    }
+
+    [HttpPost]
+    public ActionResult<CafedraEntity> Create(CafedraEntity entity)
+    {
+        if (entity == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
@@ -53,21 +97,16 @@ public class FurnitureController : ControllerBase
 
         try
         {
-            var entity = new FurnitureEntity();
-            entity.Name = dto.Name;
-            entity.Description = dto.Description;
-            entity.inv_number = dto.inv_number;
-            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { entity.guid }, entity);
         }
         catch (Exception ex)
         {
             // В случае ошибки возвращаем статус 500 с сообщением об ошибке
-            return StatusCode(500, $"Internal server error: {ex}");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 
@@ -84,21 +123,15 @@ public class FurnitureController : ControllerBase
             return NotFound("dededfe");
         }
     }
-
     [HttpPut]
-    public ActionResult<FurnitureEntity> Update(UpdateFurnitureDTO dto)
+    public ActionResult<CafedraEntity> Update(CafedraEntity entity)
     {
-        if (dto == null)
+        if (entity == null)
         {
             return BadRequest("Сущность не может быть null.");
         }
         try
         {
-            var entity = repository.Get(dto.Guid);
-            entity.Name = dto.Name;
-            entity.Description = dto.Description;
-            entity.inv_number = dto.inv_number;
-            entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);
 
@@ -111,4 +144,5 @@ public class FurnitureController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 }

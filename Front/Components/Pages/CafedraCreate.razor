@@ -1,0 +1,86 @@
+﻿@page "/cafedra/create"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Front.Components.Model
+@using Microsoft.AspNetCore.Antiforgery;
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken]
+@attribute [StreamRendering]
+
+<h1>Создание кафедры</h1>
+
+<form method="post" @onsubmit="Submit" @formname="createCafedraForm">
+    <table class="table align-content-center">
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Название: 
+                </label> 
+            </td>
+            <td>
+                <InputText class="input-group-text" @bind-Value="name"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Описание: 
+                </label>
+            </td>
+            <td>
+                <InputText class="input-group-text" @bind-Value="description" />
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="align-content-center">
+                <button class="btn btn-outline-dark create-button" type="submit">Создать</button>
+            </td>
+        </tr>
+    </table>
+    <AntiforgeryToken />
+</form>
+
+<!--<EditForm OnSubmit="Submit" Model="cafedra" FormName="createCafedraForm">
+    <label>
+        Name:
+        <InputText @bind-Value="cafedra.name" />
+    </label>
+    <label>
+        Description:
+        <InputText @bind-Value="cafedra.description" />
+    </label>
+    <button type="submit">Submit</button>
+</EditForm> 
+-->
+
+
+@code {
+    [SupplyParameterFromForm]
+    private string? name { get; set; }
+    [SupplyParameterFromForm]
+    private string? description { get; set; }
+    private string? serviceEndpoint;
+
+    protected override async Task OnInitializedAsync()
+    {
+        serviceEndpoint = $"{Config.GetValue<string>("BackendUrl")}/";
+    }
+
+    private async Task Submit ()
+    {
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7264/api/cafedra/", new {name = name, description = description});
+        
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/cafedra");
+        }
+    }
+
+}

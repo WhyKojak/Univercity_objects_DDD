@@ -5,10 +5,11 @@ using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
-namespace Univercity_objects.API.Controllers;
+namespace Univercity_objects.API.Controllers.api;
 
 [ApiController]
-[Route("[controller]")]
+[Area("api")]
+[Route("[area]/[controller]")]
 public class AuditoryController(AuditoryRepository repository,
                            CafedraRepository cafedraRepository,
                            ComputerRepository computerRepository,
@@ -85,7 +86,7 @@ public class AuditoryController(AuditoryRepository repository,
         {
             return BadRequest(ModelState);
         }
-         
+
         try
         {
             var entity = new Auditory();
@@ -97,7 +98,7 @@ public class AuditoryController(AuditoryRepository repository,
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { entity.guid }, entity);
         }
         catch (Exception ex)
         {

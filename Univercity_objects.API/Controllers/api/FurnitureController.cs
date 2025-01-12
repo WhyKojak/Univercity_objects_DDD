@@ -5,15 +5,16 @@ using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
-namespace Univercity_objects.API.Controllers;
+namespace Univercity_objects.API.Controllers.api;
 
 [ApiController]
-[Route("[controller]")]
-public class ComputerController : ControllerBase
+[Area("api")]
+[Route("[area]/[controller]")]
+public class FurnitureController : ControllerBase
 {
-    private ComputerRepository repository;
+    private FurnitureRepository repository;
     private AuditoryRepository auditoryRepository;
-    public ComputerController(ComputerRepository repository, AuditoryRepository auditoryRepository)
+    public FurnitureController(FurnitureRepository repository, AuditoryRepository auditoryRepository)
     {
         this.repository = repository;
         this.auditoryRepository = auditoryRepository;
@@ -38,7 +39,7 @@ public class ComputerController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<ComputerEntity> Create(CreateComputerDTO dto)
+    public ActionResult<FurnitureEntity> Create(CreateFurnitureDTO dto)
     {
         if (dto == null)
         {
@@ -53,17 +54,16 @@ public class ComputerController : ControllerBase
 
         try
         {
-            var entity = new ComputerEntity();
+            var entity = new FurnitureEntity();
             entity.Name = dto.Name;
             entity.Description = dto.Description;
             entity.inv_number = dto.inv_number;
-            entity.specification = dto.specification;
             entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { entity.guid }, entity);
         }
         catch (Exception ex)
         {
@@ -87,7 +87,7 @@ public class ComputerController : ControllerBase
     }
 
     [HttpPut]
-    public ActionResult<ComputerEntity> Update(UpdateComputerDTO dto)
+    public ActionResult<FurnitureEntity> Update(UpdateFurnitureDTO dto)
     {
         if (dto == null)
         {
@@ -99,7 +99,6 @@ public class ComputerController : ControllerBase
             entity.Name = dto.Name;
             entity.Description = dto.Description;
             entity.inv_number = dto.inv_number;
-            entity.specification= dto.specification;
             entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);

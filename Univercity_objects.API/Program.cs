@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddRazorPages();
+builder.Services.AddHttpLogging(o => { });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -34,7 +34,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseHttpLogging();
+
 app.MapControllers();
-app.MapRazorPages();
 
 app.Run();

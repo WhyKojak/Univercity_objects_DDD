@@ -6,6 +6,8 @@ using Univercity_objects.Infrastructure.Repository;
 
 namespace Univercity_objects.API.Controllers;
 
+// Не используется
+
 [Controller]
 public abstract class GenericController<TRepository, TEntity> : ControllerBase
     where TRepository : GenericRepository<TEntity>

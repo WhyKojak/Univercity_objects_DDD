@@ -1,0 +1,63 @@
+﻿@page "/cafedra"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IHttpClientFactory ClientFactory
+@attribute [StreamRendering]
+
+<h1>Кафедры</h1>
+
+@if (cafedras == null)
+{
+    <p>Загружаем данные</p>
+}
+else
+{
+    <a class="btn btn-outline-dark create-link" href="cafedra/create">Создать новую запись</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cafedra in cafedras)
+            {
+                <tr>
+                    <td>@cafedra.name</td>
+                    <td>@cafedra.description</td>
+                    <td><a href="cafedra/update/@cafedra.guid"><button class="btn btn-outline-dark"> Изменить </button> </a></td>
+
+                    <td><button class="btn btn-outline-dark" @onclick="(() => Delete(cafedra.guid))">Удалить</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private IEnumerable<Model.Cafedra>? cafedras = [];
+    private string? serviceEndpoint;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+    }
+
+    protected async void Delete (Guid guid) 
+    {
+        var response = await Http.DeleteAsync("https://localhost:7264/api/cafedra/" + guid);
+        if (response.IsSuccessStatusCode) 
+        {
+            await OnInitializedAsync();
+            StateHasChanged();
+        } else 
+        {
+            Console.WriteLine("Error"); 
+        }
+
+    }
+
+}

@@ -1,0 +1,96 @@
+﻿@page "/auditory"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IHttpClientFactory ClientFactory
+@attribute [StreamRendering]
+
+<h1>Аудитории</h1>
+
+@if (auditories == null)
+{
+    <p>Загружаем данные</p>
+}
+else
+{
+    <a class="btn btn-outline-dark create-link" href="auditory/create">Создать новую запись</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Описание</th>
+                <th>Инв. номер</th>
+                <th>
+                    Кафедра:
+                    <select class="input-group-text" @onchange="refreshOnCafedraSelect">
+                        <option value="">Выберите кафедру</option>
+                        @foreach (var cafedra in cafedras)
+                        {
+                            <option value="@cafedra.guid">@cafedra.name</option>
+                        }
+                    </select>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var auditory in auditories)
+            {
+                <tr>
+                    <td>@auditory.name</td>
+                    <td>@auditory.description</td>
+                    <td>@auditory.inv_number</td>
+                    <td>@auditory.cafedra.name</td>
+                    <td><a href="auditory/update/@auditory.guid"><button class="btn btn-outline-dark"> Изменить </button> </a></td>
+                    <td><button class="btn btn-outline-dark" @onclick="(() => Delete(auditory.guid))" >Удалить</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Model.Auditory>? auditories = [];
+    private IEnumerable<Model.Cafedra>? cafedras = [];
+    private Guid? CafedraGuid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        if (CafedraGuid != null)
+        {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/auditories");
+        } else {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+        }
+    }
+
+    protected async void Delete (Guid guid) 
+    {
+        var response = await Http.DeleteAsync("https://localhost:7264/api/auditory/" + guid);
+        if (response.IsSuccessStatusCode) 
+        {
+            await OnInitializedAsync();
+            StateHasChanged();
+        } else 
+        {
+            Console.WriteLine("Error"); 
+        }
+
+    }
+
+    private async void refreshOnCafedraSelect(ChangeEventArgs e)
+    {
+        if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+        {
+            CafedraGuid = Guid.Parse(e.Value.ToString());
+        }
+        else
+        {
+            CafedraGuid = null;
+        }
+        await OnInitializedAsync();
+        StateHasChanged();
+    }
+}

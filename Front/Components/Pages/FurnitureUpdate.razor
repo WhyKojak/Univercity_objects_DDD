@@ -1,0 +1,124 @@
+﻿@page "/furniture/update/{furniturestr}"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Front.Components.Model
+@using Microsoft.AspNetCore.Antiforgery;
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken]
+@attribute [StreamRendering]
+
+<h1>Обновление фурнитуры</h1>
+
+<form method="post" @onsubmit="Submit" @formname="updateFurnitureForm">
+    <table class=" table align-content-center table-group-divider">
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Название:
+                </label>
+            </td>
+            <td>
+                <InputText class="input-group-text" @bind-Value="name"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Описание:
+                </label>
+            </td>
+            <td>
+                <InputText class="input-group-text" @bind-Value="description" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Инв. номер:
+                </label>
+            </td>
+            <td>
+                <InputText class="input-group-text" @bind-Value="inv_number" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="col-form-label">
+                    Aудитория:
+                </label>
+            </td>
+            <td class="align-content-center">
+                <InputSelect class="input-group-text" @bind-Value="AuditoryGuid">
+                    @foreach (var auditory in auditories)
+                    {
+                        <option value="@auditory.guid">@auditory.name</option>
+                    }
+                </InputSelect>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="align-content-center">
+                <button class="btn btn-outline-dark create-button" type="submit">Применить изменения</button>
+            </td>
+        </tr>
+    </table>
+    <AntiforgeryToken />
+</form>
+
+
+@code {
+    [SupplyParameterFromForm]
+    private string? name { get; set; }
+    [SupplyParameterFromForm]
+    private string? description { get; set; }
+    [SupplyParameterFromForm]
+    private string? inv_number { get; set; }
+    [SupplyParameterFromForm]
+    private Guid? AuditoryGuid { get; set; }
+
+    private Guid furnitureguid { get; set; }
+
+    [Parameter]
+    public string furniturestr { get; set; }
+
+    private Model.Furniture? furniture { get; set; }
+    private IEnumerable<Model.Auditory>? auditories = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (furniture is null)
+        {
+            furnitureguid = Guid.Parse(furniturestr);
+            // GetById
+            furniture = await Http.GetFromJsonAsync<Model.Furniture>("https://localhost:7264/api/furniture/" + furniturestr);
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+
+            name = furniture.name;
+            description = furniture.description;
+            inv_number = furniture.inv_number;
+            AuditoryGuid = furniture.Auditory.guid;
+        }
+    }
+
+    private async Task Submit ()
+    {
+        var response = await Http.PutAsJsonAsync("https://localhost:7264/api/furniture/", new { guid = furnitureguid, 
+            name = name,  
+            description = description, 
+            inv_number = inv_number,
+            AuditoryGuid = AuditoryGuid
+        });
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/furniture");
+        }
+    }
+
+}

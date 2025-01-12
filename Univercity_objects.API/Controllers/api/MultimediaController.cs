@@ -5,10 +5,11 @@ using Univercity_objects.Domain;
 using Univercity_objects.Infrastructure;
 using Univercity_objects.Infrastructure.Repository;
 
-namespace Univercity_objects.API.Controllers;
+namespace Univercity_objects.API.Controllers.api;
 
 [ApiController]
-[Route("[controller]")]
+[Area("api")]
+[Route("[area]/[controller]")]
 public class MultimediaController : ControllerBase
 {
     private MultimediaEqumentRepository repository;
@@ -63,7 +64,7 @@ public class MultimediaController : ControllerBase
             repository.Create(entity);
 
             // Возврат успешного ответа с статусом 201 (Created) и местом для нового ресурса
-            return CreatedAtAction(nameof(GetById), new { guid = entity.guid }, entity);
+            return CreatedAtAction(nameof(GetById), new { entity.guid }, entity);
         }
         catch (Exception ex)
         {
@@ -98,7 +99,7 @@ public class MultimediaController : ControllerBase
             entity.Name = dto.Name;
             entity.Description = dto.Description;
             entity.inv_number = dto.inv_number;
-            entity.model= dto.model;
+            entity.model = dto.model;
             entity.Auditory = auditoryRepository.Get(dto.AuditoryGuid);
             // Добавление в базу через репозиторий
             repository.Update(entity);
