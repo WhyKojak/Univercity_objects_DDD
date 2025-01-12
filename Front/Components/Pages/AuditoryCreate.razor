@@ -54,6 +54,7 @@
             </td>
             <td class="align-content-center">
             <InputSelect class="input-group-text" @bind-Value="cafedraguid">
+                <option value=""></option>
                 @foreach (var cafedra in cafedras)
                     {
                         <option value="@cafedra.guid">@cafedra.name</option>
