@@ -16,13 +16,33 @@
 else
 {
     <a class="btn btn-dark" href="furniture/create">Создать</a>
+
     <table class="table">
         <thead>
             <tr>
                 <th>Имя</th>
                 <th>Описание</th>
                 <th>Инв. номер</th>
-                <th>Аудитория</th>
+                <th>
+                    Аудитория:
+                    <select class="input-group-text" @onchange="refreshOnAuditorySelect">
+                        <option value="">Выберите аудиторию</option>
+                        @foreach (var auditory in auditories)
+                        {
+                            <option value="@auditory.guid">@auditory.name</option>
+                        }
+                    </select>
+                </th>
+                <th>
+                    Кафедра:
+                    <select class="input-group-text" @onchange="refreshOnCafedraSelect">
+                        <option value="">Выберите кафедру</option>
+                        @foreach (var cafedra in cafedras)
+                        {
+                            <option value="@cafedra.guid">@cafedra.name</option>
+                        }
+                    </select>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +53,7 @@ else
                     <td>@fur.description</td>
                     <td>@fur.inv_number</td>
                     <td>@fur.Auditory.name</td>
+                    <td>@fur.Auditory.cafedra.name</td>
                     <td><a href="furniture/update/@fur.guid"><button class="btn btn-dark"> Изменить </button> </a></td>
                     <td><button class="btn btn-dark" @onclick="(() => Delete(fur.guid))">Удалить</button></td>
                 </tr>
@@ -43,11 +64,37 @@ else
 
 @code {
     private IEnumerable<Model.Furniture>? furniture = [];
-    private string? serviceEndpoint;
+    private IEnumerable<Model.Auditory>? auditories = [];
+    private IEnumerable<Model.Cafedra>? cafedras = [];
+    private Guid? AuditoryGuid;
+    private Guid? CafedraGuid;
 
     protected override async Task OnInitializedAsync()
     {
-        furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/furniture/");
+        cafedras = await Http.GetFromJsonAsync<IEnumerable<Model.Cafedra>>("https://localhost:7264/api/cafedra/");
+        if (CafedraGuid != null)
+        {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/auditories");
+            if (AuditoryGuid != null)
+            {
+                furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/auditory/" + AuditoryGuid + "/furnitures");
+            }
+            else
+            {
+                furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/cafedra/" + CafedraGuid + "/furnitures");
+            }
+        }
+        else {
+            auditories = await Http.GetFromJsonAsync<IEnumerable<Model.Auditory>>("https://localhost:7264/api/auditory/");
+            if (AuditoryGuid != null)
+            {
+                furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/auditory/" + AuditoryGuid + "/furnitures");
+            }
+            else
+            {
+                furniture = await Http.GetFromJsonAsync<IEnumerable<Model.Furniture>>("https://localhost:7264/api/furniture/");
+            }
+        }
     }
 
     protected async void Delete (Guid guid) 
@@ -62,5 +109,33 @@ else
             Console.WriteLine("Error"); 
         }
 
+    }
+
+    private async void refreshOnAuditorySelect(ChangeEventArgs e)
+    {
+        if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+        {
+            AuditoryGuid = Guid.Parse(e.Value.ToString());
+        }
+        else {
+            AuditoryGuid = null;
+        }
+        await OnInitializedAsync();
+        StateHasChanged();
+    }
+
+    private async void refreshOnCafedraSelect(ChangeEventArgs e)
+    {
+        AuditoryGuid = null;
+        if (e.Value != null && !String.IsNullOrEmpty(e.Value.ToString()))
+        {
+            CafedraGuid = Guid.Parse(e.Value.ToString());
+        }
+        else
+        {
+            CafedraGuid = null;
+        }
+        await OnInitializedAsync();
+        StateHasChanged();
     }
 }
